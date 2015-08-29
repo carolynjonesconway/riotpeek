@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>riotpy</title>
+</head>
+<body>
+	<h1>RiotpyMessenger</h1>
+	<form>
+		<label>
+			<input id="summoner-name" type="text" value="iceman2163" placeholder="summoner">
+		</label>
+		<label>
+			<input id="summoner-submit" type="submit">
+		</label>
+	</form>
+	<div id="response-div">
+		<p id="game-status"></p>
+	</div>
+	<p>RiotpyMessenger isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
+	</p>
+
+
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+<script>
+
+$('#summoner-submit').click(findGame);
+
+function findGame(evt) {
+	evt.preventDefault();
+	var summoner = $('#summoner-name').val();
+	var formInput = {
+		summoner: summoner
+	};
+	
+	$('#game-status').text('');
+
+	$.get('/find_game', formInput, function(response) {
+		var game = JSON.parse(response);
+		if (game) {
+			var gameStartEpochMillesecs = game.gameStartTime;
+			var gameStartEpochSecs = gameStartEpochMillesecs/1000;
+			var gameStart = moment.unix(gameStartEpochSecs);
+			var gameDuration = moment(gameStart).fromNow(true);
+			var msg = summoner + ' has been in game for ' + gameDuration + '.'
+
+		} else {
+			msg = summoner + ' is not currently in game.'
+		};
+		$('#game-status').text(msg);
+	})
+}
+
+
+</script>
+</body>
+</html>
