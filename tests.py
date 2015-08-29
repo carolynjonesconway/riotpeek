@@ -14,7 +14,7 @@ class IntegrationTestCase(unittest.TestCase):
         result = test_client.get('/')
         self.assertEqual(result.status_code, 200)
         self.assertIn('text/html', result.headers['Content-Type'])
-        self.assertIn('<h1>RiotpyMessenger</h1>', result.data)
+        self.assertIn('<h1>RiotPeek</h1>', result.data)
 
 
 if __name__ == "__main__":    

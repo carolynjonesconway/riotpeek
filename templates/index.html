@@ -1,7 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 	<style type="text/css">
+
+	body {
+		text-align: center;
+	}
+
+	table, th, td {
+		text-align: center;
+		margin: 0 auto;
+	}
+
+	table {
+		width: 60%;
+	}
 
 	.hidden {
 		display: none;
@@ -12,26 +26,25 @@
 	<title>riotpy</title>
 </head>
 <body>
-	<h1>RiotpyMessenger</h1>
+	<h1>RiotPeek</h1>
 	<form>
-		<label>
-			<input id="summoner-name" type="text" value="xtoasterwaffle" placeholder="summoner">
+		<label class="form-group">
+			<input id="summoner-name" class="form-control" type="text" value="xtoasterwaffle" placeholder="summoner">
 		</label>
-		<label>
-			<input id="summoner-submit" type="submit">
+		<label class="form-group">
+			<input id="summoner-submit" class="btn btn-default" type="submit">
 		</label>
 	</form>
 	<div id="response-div">
 		<p id="game-status"></p>
-		<table class="hidden">
+		<table class="hidden table table-hover">
 			<thead>
 				<th>Summoner</th>
 				<th>Champion</th>
 			</thead>
 			<tbody id="teamOne"></tbody>
 		</table>
-		<br><br><br>
-		<table class="hidden">
+		<table class="hidden table table-hover">
 			<thead>
 				<th>Summoner</th>
 				<th>Champion</th>
@@ -39,11 +52,12 @@
 			<tbody id="teamTwo"></tbody>
 		</table>
 	</div>
-	<p>RiotpyMessenger isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
+	<p style="display: none">RiotpyMessenger isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
 	</p>
 
 
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
 <script>
 
@@ -51,6 +65,7 @@ $('#summoner-submit').click(findGame);
 
 function findGame(evt) {
 	evt.preventDefault();
+
 	var summoner = $('#summoner-name').val();
 	var formInput = {
 		summoner: summoner
