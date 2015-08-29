@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<style type="text/css">
+
+	.hidden {
+		display: none;
+	}
+
+	</style>
+
 	<title>riotpy</title>
 </head>
 <body>
 	<h1>RiotpyMessenger</h1>
 	<form>
 		<label>
-			<input id="summoner-name" type="text" value="iceman2163" placeholder="summoner">
+			<input id="summoner-name" type="text" value="xtoasterwaffle" placeholder="summoner">
 		</label>
 		<label>
 			<input id="summoner-submit" type="submit">
@@ -15,6 +23,21 @@
 	</form>
 	<div id="response-div">
 		<p id="game-status"></p>
+		<table class="hidden">
+			<thead>
+				<th>Summoner</th>
+				<th>Champion</th>
+			</thead>
+			<tbody id="teamOne"></tbody>
+		</table>
+		<br><br><br>
+		<table class="hidden">
+			<thead>
+				<th>Summoner</th>
+				<th>Champion</th>
+			</thead>
+			<tbody id="teamTwo"></tbody>
+		</table>
 	</div>
 	<p>RiotpyMessenger isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
 	</p>
@@ -33,7 +56,10 @@ function findGame(evt) {
 		summoner: summoner
 	};
 	
+	$('table').addClass('hidden');
 	$('#game-status').text('');
+	$('#teamOne').text('');
+	$('#teamTwo').text('');
 
 	$.get('/find_game', formInput, function(response) {
 		var game = JSON.parse(response).game;
@@ -41,20 +67,50 @@ function findGame(evt) {
 
 		if (summonerId) {
 			if (game) {
-			console.log(game);
 			var gameStartEpochMillesecs = game.gameStartTime;
 			var gameStartEpochSecs = gameStartEpochMillesecs/1000;
 			var gameStart = moment.unix(gameStartEpochSecs);
 			var gameDuration = moment(gameStart).fromNow(true);
-			var msg = summoner + ' has been in game for ' + gameDuration + '.'
+			var gameStatus = summoner + ' has been in game for ' + gameDuration + '.'
+			var teamOneId = game.participants[0].teamId
+
+			// Load champs
+			var url = 'http://ddragon.leagueoflegends.com/cdn/5.2.1/data/en_US/champion.json';
+			$.get(url, function(response) {
+				var championsData = response.data;
+				var champions = {};
+				for (var champName in championsData) {
+					champId = championsData[champName]['key']
+					champions[champId] = champName;
+				};
+				for (var i=0; i < game.participants.length; i++) {
+					var participant = game.participants[i]
+					var participantInfo = $('<li>').text(participant.summonerName)
+
+					participantInfo = '<tr>\
+											<td>' + participant.summonerName + '</td>\
+											<td>' + champions[participant.championId] + '</td>\
+										</tr>'
+
+
+					// Add the participant to the correct team
+					if (participant.teamId === teamOneId) {
+						$('#teamOne').append(participantInfo);
+					} else {
+						$('#teamTwo').append(participantInfo);
+					};	
+				};
+			});
+			$('table').removeClass('hidden');
+
 			} else {
-				var msg = summoner + ' is not currently in game.'
+				var gameStatus = summoner + ' is not currently in game.'
 			};
 		} else {
-			var msg = 'No summoner by the name ' + summoner + ' could be found.'
+			var gameStatus = 'No summoner by the name ' + summoner + ' could be found.'
 		};
 		
-		$('#game-status').text(msg);
+		$('#game-status').text(gameStatus);
 	})
 }
 
