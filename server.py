@@ -22,12 +22,12 @@ def find_game():
 
 	summoner_name = request.args.get('summoner')
 	summoner_id = riot.get_summoner_id(summoner_name)
-	if summoner_id:
-		game = riot.get_current_game(summoner_id)
-		return json.dumps(game)
-	else:
-		return "No summoner could be found."
+	game = riot.get_current_game(summoner_id)
 
+	response = {'summonerId': summoner_id,
+				'game': game}
+
+	return json.dumps(response)
 
 #####################################################
 # Main

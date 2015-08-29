@@ -36,17 +36,24 @@ function findGame(evt) {
 	$('#game-status').text('');
 
 	$.get('/find_game', formInput, function(response) {
-		var game = JSON.parse(response);
-		if (game) {
+		var game = JSON.parse(response).game;
+		var summonerId = JSON.parse(response).summonerId;
+
+		if (summonerId) {
+			if (game) {
+			console.log(game);
 			var gameStartEpochMillesecs = game.gameStartTime;
 			var gameStartEpochSecs = gameStartEpochMillesecs/1000;
 			var gameStart = moment.unix(gameStartEpochSecs);
 			var gameDuration = moment(gameStart).fromNow(true);
 			var msg = summoner + ' has been in game for ' + gameDuration + '.'
-
+			} else {
+				var msg = summoner + ' is not currently in game.'
+			};
 		} else {
-			msg = summoner + ' is not currently in game.'
+			var msg = 'No summoner by the name ' + summoner + ' could be found.'
 		};
+		
 		$('#game-status').text(msg);
 	})
 }
