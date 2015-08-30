@@ -6,6 +6,20 @@
 
 	body {
 		text-align: center;
+		background-color: #D3D3D1;
+	    
+	}
+
+	#top-row {
+		background-image: url('static/img/caitlyn-short.jpg');
+		background-size: 100%;
+		background-repeat: no-repeat;
+		margin-bottom: 2em;
+	}
+
+	h1, #game-status {
+		text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+		color: white;
 	}
 
 	table, th, td {
@@ -15,10 +29,7 @@
 
 	table {
 		width: 60%;
-	}
-
-	.hidden {
-		display: none;
+		background-color: rgba(255,255,255,0.5);
 	}
 
 	</style>
@@ -26,35 +37,46 @@
 	<title>RiotPeek</title>
 </head>
 <body>
-	<h1>RiotPeek</h1>
-	<form>
-		<label class="form-group">
-			<input id="summoner-name" class="form-control" type="text" value="wushao" placeholder="summoner">
-		</label>
-		<label class="form-group">
-			<input id="summoner-submit" class="btn btn-default" type="submit">
-		</label>
-	</form>
-	<div id="response-div">
-		<p id="game-status"></p>
-		<table class="hidden table table-hover">
-			<thead>
-				<th>Summoner</th>
-				<th>Champion</th>
-			</thead>
-			<tbody id="teamOne"></tbody>
-		</table>
-		<table class="hidden table table-hover">
-			<thead>
-				<th>Summoner</th>
-				<th>Champion</th>
-			</thead>
-			<tbody id="teamTwo"></tbody>
-		</table>
-	</div>
-	<p>RiotPeek isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
-	</p>
+	<div class="container-fluid">
+		<div id="top-row" class="row">
+			<div class="col-xs-12">
+				<h1>RiotPeek</h1>
+				<form>
+					<label class="form-group">
+						<input id="summoner-name" class="form-control" type="text" value="grizzlies" placeholder="summoner">
+					</label>
+					<label class="form-group">
+						<input id="summoner-submit" class="btn btn-default" type="submit">
+					</label>
+				</form>
+				<p id="game-status" style="height: 25px"></p>
+				<img src="/static/img/loading.gif" class="invisible" style="width: 60px">
 
+			</div>
+		</div>
+		<div class="row" style="height: 250px">
+			<div class="col-xs-6">
+				<table class="invisible table table-hover">
+					<thead>
+						<th>Summoner</th>
+						<th>Champion</th>
+					</thead>
+					<tbody id="teamOne"></tbody>
+				</table>
+			</div>
+			<div class="col-xs-6">
+				<table class="invisible table table-hover">
+					<thead>
+						<th>Summoner</th>
+						<th>Champion</th>
+					</thead>
+					<tbody id="teamTwo"></tbody>
+				</table>
+			</div>
+		</div>
+		<p>RiotPeek isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
+		</p>
+	</div>
 
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
@@ -71,7 +93,8 @@ function findGame(evt) {
 		summoner: summoner
 	};
 	
-	$('table').addClass('hidden');
+	$('img').removeClass('invisible');
+	$('table').addClass('invisible');
 	$('#game-status').text('');
 	$('#teamOne').text('');
 	$('#teamTwo').text('');
@@ -112,7 +135,7 @@ function findGame(evt) {
 					};	
 				};
 			});
-			$('table').removeClass('hidden');
+			$('table').removeClass('invisible');
 
 			} else {
 				var gameStatus = summoner + ' is not currently in game.'
@@ -120,7 +143,7 @@ function findGame(evt) {
 		} else {
 			var gameStatus = 'No summoner by the name ' + summoner + ' could be found.'
 		};
-		
+		$('img').addClass('invisible');
 		$('#game-status').text(gameStatus);
 	})
 }
