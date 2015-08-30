@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from riotpy import Riotpy, RIOT_KEY, champs
+from riotpy import Riotpy, RIOT_KEY, champs, ranked
 from twilio import twiml
 from datetime import datetime, timedelta
 import json, os
@@ -49,11 +49,20 @@ def respond():
 	game = riot.get_current_game(summoner_id)
 
 	if game:
+		# Determine game duration
 		game_start_epoch = float(game['gameStartTime'])/1000
 		game_start = datetime.fromtimestamp(game_start_epoch)
 		duration = datetime.now() - game_start
 		minutes = int(duration.total_seconds()/60)
-		msg = "{} has been in game for {} minutes.".format(summoner_name, minutes)
+
+		# Determine game type
+		if int(game['gameQueueConfigId']) in ranked:
+			game_type = 'ranked'
+		else:
+			game_type = 'normal'
+			print int(game['gameQueueConfigId'])
+
+		msg = "{} has been in a {} game for {} minutes.".format(summoner_name, game_type, minutes)
 	else:
 		msg = "{} is not currently in game.".format(summoner_name)
 
