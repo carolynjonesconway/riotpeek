@@ -55,6 +55,13 @@ def respond():
 		duration = datetime.now() - game_start
 		minutes = int(duration.total_seconds()/60)
 
+		# Determine champion
+		for player in game['participants']:
+			if player['summonerId'] == summoner_id:
+				champ_id = player['championId']
+				champ = champs[champ_id]
+				break
+
 		# Determine game type
 		if int(game['gameQueueConfigId']) in ranked:
 			game_type = 'ranked'
@@ -62,7 +69,7 @@ def respond():
 			game_type = 'normal'
 			print int(game['gameQueueConfigId'])
 
-		msg = "{} has been in a {} game for {} minutes.".format(summoner_name, game_type, minutes)
+		msg = "{0} has been in a {1} game as {2} for {3} minutes.".format(summoner_name, game_type, champ, minutes)
 	else:
 		msg = "{} is not currently in game.".format(summoner_name)
 
