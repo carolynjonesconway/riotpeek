@@ -23,13 +23,13 @@
 
 	</style>
 
-	<title>riotpy</title>
+	<title>RiotPeek</title>
 </head>
 <body>
 	<h1>RiotPeek</h1>
 	<form>
 		<label class="form-group">
-			<input id="summoner-name" class="form-control" type="text" value="Xanaduu" placeholder="summoner">
+			<input id="summoner-name" class="form-control" type="text" value="wushao" placeholder="summoner">
 		</label>
 		<label class="form-group">
 			<input id="summoner-submit" class="btn btn-default" type="submit">
@@ -52,7 +52,7 @@
 			<tbody id="teamTwo"></tbody>
 		</table>
 	</div>
-	<p style="display: none">RiotpyMessenger isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
+	<p>RiotPeek isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
 	</p>
 
 
@@ -82,6 +82,7 @@ function findGame(evt) {
 
 		if (summonerId) {
 			if (game) {
+
 			var gameStartEpochMillesecs = game.gameStartTime;
 			var gameStartEpochSecs = gameStartEpochMillesecs/1000;
 			var gameStart = moment.unix(gameStartEpochSecs);
@@ -89,15 +90,11 @@ function findGame(evt) {
 			var gameStatus = summoner + ' has been in game for ' + gameDuration + '.'
 			var teamOneId = game.participants[0].teamId
 
-			// Load champs
-			var url = 'http://ddragon.leagueoflegends.com/cdn/5.2.1/data/en_US/champion.json';
-			$.get(url, function(response) {
-				var championsData = response.data;
-				var champions = {};
-				for (var champName in championsData) {
-					champId = championsData[champName]['key']
-					champions[champId] = champName;
-				};
+			// Load champs & update the dom
+			$.get('/get_champs', function(response) {
+				
+				var champions = JSON.parse(response);
+				
 				for (var i=0; i < game.participants.length; i++) {
 					var participant = game.participants[i]
 					var participantInfo = $('<li>').text(participant.summonerName)
@@ -105,8 +102,7 @@ function findGame(evt) {
 					participantInfo = '<tr>\
 											<td>' + participant.summonerName + '</td>\
 											<td>' + champions[participant.championId] + '</td>\
-										</tr>'
-
+										</tr>';
 
 					// Add the participant to the correct team
 					if (participant.teamId === teamOneId) {

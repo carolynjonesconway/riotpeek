@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from riotpy import Riotpy, RIOT_KEY
+from riotpy import Riotpy, RIOT_KEY, champs
 from twilio import twiml
 from datetime import datetime, timedelta
 import json, os
@@ -16,6 +16,7 @@ def index():
 
 	return render_template('index.html')
 
+
 @app.route("/find_game")
 def find_game():
 	"""Returns the summoner's current game, or None"""
@@ -28,6 +29,14 @@ def find_game():
 				'game': game}
 
 	return json.dumps(response)
+
+
+@app.route("/get_champs")
+def return_champs():
+	"""Returns a JSON object of the LoL champs, mapped by id"""
+
+	return json.dumps(champs)
+
 
 @app.route("/", methods=['POST'])
 def respond():
@@ -52,11 +61,6 @@ def respond():
 	resp.message(msg)
 
 	return str(resp)
-
-#####################################################
-# Helper Functions
-
-
 
 #####################################################
 # Main

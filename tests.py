@@ -16,6 +16,11 @@ class IntegrationTestCase(unittest.TestCase):
         self.assertIn('text/html', result.headers['Content-Type'])
         self.assertIn('<h1>RiotPeek</h1>', result.data)
 
+    def test_find_game(self):
+        test_client = server.app.test_client()
+        result = test_client.get('/find_game')
+        self.assertIn("summonerId", result.data)
+
 
 if __name__ == "__main__":    
     unittest.main()
