@@ -7,7 +7,6 @@
 	body {
 		text-align: center;
 		background-color: #D3D3D1;
-	    
 	}
 
 	#top-row {
@@ -18,7 +17,7 @@
 	}
 
 	h1, #game-status {
-		text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+		text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 		color: white;
 	}
 
@@ -74,7 +73,7 @@
 				</table>
 			</div>
 		</div>
-		<p>RiotPeek isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
+		<p>RiotPeek is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
 		</p>
 	</div>
 
@@ -88,17 +87,20 @@ $('#summoner-submit').click(findGame);
 function findGame(evt) {
 	evt.preventDefault();
 
+	// Get summoner name from the DOM
 	var summoner = $('#summoner-name').val();
 	var formInput = {
 		summoner: summoner
 	};
 	
+	// Update the DOM for loading
 	$('img').removeClass('invisible');
 	$('table').addClass('invisible');
 	$('#game-status').text('');
 	$('#teamOne').text('');
 	$('#teamTwo').text('');
 
+	// Get the game from the Riot API
 	$.get('/find_game', formInput, function(response) {
 		var game = JSON.parse(response).game;
 		var summonerId = JSON.parse(response).summonerId;
@@ -106,37 +108,50 @@ function findGame(evt) {
 		if (summonerId) {
 			if (game) {
 
-			var gameStartEpochMillesecs = game.gameStartTime;
-			var gameStartEpochSecs = gameStartEpochMillesecs/1000;
-			var gameStart = moment.unix(gameStartEpochSecs);
-			var gameDuration = moment(gameStart).fromNow(true);
-			var gameStatus = summoner + ' has been in game for ' + gameDuration + '.'
-			var teamOneId = game.participants[0].teamId
+				console.log(game);
 
-			// Load champs & update the dom
-			$.get('/get_champs', function(response) {
-				
-				var champions = JSON.parse(response);
-				
-				for (var i=0; i < game.participants.length; i++) {
-					var participant = game.participants[i]
-					var participantInfo = $('<li>').text(participant.summonerName)
+				// Determine game duration
+				var gameStartEpochMillesecs = game.gameStartTime;
+				var gameStartEpochSecs = gameStartEpochMillesecs/1000;
+				var gameStart = moment.unix(gameStartEpochSecs);
+				var gameDuration = moment(gameStart).fromNow(true);
 
-					participantInfo = '<tr>\
-											<td>' + participant.summonerName + '</td>\
-											<td>' + champions[participant.championId] + '</td>\
-										</tr>';
-
-					// Add the participant to the correct team
-					if (participant.teamId === teamOneId) {
-						$('#teamOne').append(participantInfo);
-					} else {
-						$('#teamTwo').append(participantInfo);
-					};	
+				// Determine game type
+				var ranked = [4, 6, 9, 41, 42];
+				if (game.gameQueueConfigId in ranked) {
+					var gameType = 'ranked'
+				} else {
+					var gameType = 'normal'
 				};
-			});
-			$('table').removeClass('invisible');
+				
+				var gameStatus = summoner + ' has been in a ' + gameType + ' game for ' + gameDuration + '.'
+				var teamOneId = game.participants[0].teamId
 
+				// Add player info to the DOM
+				$.get('/get_champs', function(response) {
+					
+					var champions = JSON.parse(response);
+
+					// Calculate player info
+					for (var i=0; i < game.participants.length; i++) {
+						var participant = game.participants[i]
+						var participantInfo = $('<li>').text(participant.summonerName)
+
+						// Determine the correct champion
+						participantInfo = '<tr>\
+												<td>' + participant.summonerName + '</td>\
+												<td>' + champions[participant.championId] + '</td>\
+											</tr>';
+
+						// Determine the correct team
+						if (participant.teamId === teamOneId) {
+							$('#teamOne').append(participantInfo);
+						} else {
+							$('#teamTwo').append(participantInfo);
+						};	
+					};
+				});
+				$('table').removeClass('invisible');
 			} else {
 				var gameStatus = summoner + ' is not currently in game.'
 			};
