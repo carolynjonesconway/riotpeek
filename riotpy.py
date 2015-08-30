@@ -52,7 +52,7 @@ class Riotpy(object):
 		url = 'https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(self.region, name, self.api_key)
 		try:
 			response = requests.get(url).json()
-			return response[name]['id']
+			return response[name.lower()]['id']
 		except:
 			return None
 
