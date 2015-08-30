@@ -69,10 +69,12 @@ def respond():
 			game_type = 'normal'
 			print int(game['gameQueueConfigId'])
 
+		# Create message
 		msg = "{0} has been in a {1} game as {2} for {3} minutes.".format(summoner_name, game_type, champ, minutes)
 	else:
-		msg = "{} is not currently in game.".format(summoner_name)
+		msg = "{0} is not currently in game.".format(summoner_name)
 
+	# Send message
 	resp = twiml.Response()
 	resp.message(msg)
 
