@@ -38,6 +38,12 @@ def return_champs():
 	return json.dumps(champs)
 
 
+@app.route("/api_key")
+def return_api_key():
+	"""Returns a JSON object containing the API key"""
+
+	return json.dumps({'api_key': RIOT_KEY})
+
 @app.route("/", methods=['POST'])
 def respond():
 	"""Sends a text response"""

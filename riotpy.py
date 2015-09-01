@@ -26,6 +26,8 @@ class Riotpy(object):
 		self.api_key = api_key
 		self.region = region
 		self.platform = platform
+		self.summoners = {'icegirl2163':43265218,
+						  'iceman2163':22685864}
 
 	def get_summoner_ids(self, names):
 		"""Given a list of names, returns a list of summoner ids, in the same order
@@ -45,16 +47,26 @@ class Riotpy(object):
 	def get_summoner_id(self, name):
 		"""Given a single summoner name, returns that summoner's id
 
+
+		This decreases the number of requests by storing info.
+
 			>>> rp.get_summoner_id('icegirl2163')
 			43265218
 
 		"""
-		url = 'https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(self.region, name, self.api_key)
-		try:
-			response = requests.get(url).json()
-			return response[name.lower()]['id']
-		except:
-			return None
+		name = name.lower()
+
+		if name in self.summoners:
+			return summoners[name]
+
+		else:
+			url = 'https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(self.region, name, self.api_key)
+			try:
+				response = requests.get(url).json()
+				summoners[name] = response[name]['id']
+				return response[name]['id']
+			except:
+				return None
 
 
 	def get_current_game(self, summoner_id):
