@@ -29,8 +29,8 @@ def find_game():
 	summoner_name = request.args.get('summoner')
 	game_info = riot.get_current_game_info(summoner_name)
 
-	if not game_info:
-		game_info = {'summonerId': None,
+	if not game_info['game']['gameType']:
+		game_info = {'summonerId': game_info['summonerId'],
 					 'game': None}
 
 	return json.dumps(game_info)
