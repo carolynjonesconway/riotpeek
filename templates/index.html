@@ -6,17 +6,15 @@
 
 	body {
 		text-align: center;
-		background-color: #D3D3D1;
-	}
-
-	#top-row {
-		background-image: url('static/img/caitlyn.jpg');
-		background-size: 100%;
+		color: white;
+		background-color: black;
+		background-image: url('static/img/sejuani.jpg');
 		background-repeat: no-repeat;
-		margin-bottom: 2em;
+		background-size: cover;
+		overflow: hidden;
 	}
 
-	h1, #game-status {
+	h1/*, #game-status*/ {
 		text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 		color: white;
 	}
@@ -24,11 +22,17 @@
 	table, th, td {
 		text-align: center;
 		margin: 0 auto;
+		color: black;
 	}
 
 	table {
 		width: 60%;
-		background-color: rgba(255,255,255,0.5);
+		background-color: rgba(255,255,255,0.7);
+	}
+
+	#footer {
+		position: absolute;
+		bottom: 0;
 	}
 
 	</style>
@@ -37,21 +41,18 @@
 </head>
 <body>
 	<div class="container-fluid">
-		<div id="top-row" class="row">
-			<div class="col-xs-12">
-				<h1>RiotPeek</h1>
-				<form>
-					<label class="form-group">
-						<input id="summoner-name" class="form-control" type="text" value="stixxay" placeholder="summoner">
-					</label>
-					<label class="form-group">
-						<input id="summoner-submit" class="btn btn-default" type="submit">
-					</label>
-				</form>
-				<p id="game-status" style="height: 25px"></p>
-				<img src="/static/img/loading.gif" class="invisible" style="width: 60px">
-
-			</div>
+		<div class="col-xs-12">
+			<h1>RiotPeek</h1>
+			<form>
+				<label class="form-group">
+					<input id="summoner-name" class="form-control" type="text" value="Vankara" placeholder="summoner">
+				</label>
+				<label class="form-group">
+					<input id="summoner-submit" class="btn btn-default" type="submit">
+				</label>
+			</form>
+			<p id="game-status" style="height: 25px"></p>
+			<img src="/static/img/loading.gif" class="invisible" style="width: 60px">
 		</div>
 		<div class="row" style="height: 250px">
 			<div class="col-xs-12 col-sm-6">
@@ -73,7 +74,7 @@
 				</table>
 			</div>
 		</div>
-		<p>RiotPeek is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
+		<p id="footer">RiotPeek is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
 		</p>
 	</div>
 
@@ -88,108 +89,90 @@ function findGame(evt) {
 	evt.preventDefault();
 
 	// Get summoner name from the DOM
-	var summoner = $('#summoner-name').val();
-	var formInput = {
-		summoner: summoner
+	var summonerName = $('#summoner-name').val();
+	var summonerInfo = {
+		summoner: summonerName
 	};
 	
 	// Update the DOM for loading
 	$('img').removeClass('invisible');
-	$('table').addClass('invisible');
+	// $('table').addClass('invisible');
 	$('#game-status').text('');
 	$('#teamOne').text('');
 	$('#teamTwo').text('');
 
-	// Get the game from the Riot API
-	$.get('/find_game', formInput, function(response) {
-		var game = JSON.parse(response).game;
-		var summonerId = JSON.parse(response).summonerId;
 
+	// Get the game from the server
+	$.get('/find_game', {summoner: summonerName}, function(response) {
+		var response = JSON.parse(response);
+		var summonerId = response.summonerId;
+		var game = response.game;
+		console.log(response);
 		if (summonerId) {
-			if (game) {
-				// Determine game duration
-				var gameStartEpochMillesecs = game.gameStartTime;
-				var gameStartEpochSecs = gameStartEpochMillesecs/1000;
-				var gameStart = moment.unix(gameStartEpochSecs);
-				var gameDuration = moment(gameStart).fromNow(true);
+			if (game) { // If the summoner exists and is in game
 
-				// Determine game type
-				var ranked = [4, 6, 9, 41, 42];
-				if (game.gameQueueConfigId in ranked) {
-					var gameType = 'ranked'
-				} else {
-					var gameType = 'normal'
-				};
+				// Set the game status
+				var gameStart = moment.unix(game.startTime);
+				var duration =  moment(gameStart).fromNow(true);
+				var gameType = game['gameType'];
 
-				
-				var teamOneId = game.participants[0].teamId
+				var gameStatus = summonerName + ' has been in a ' + gameType + 'game for ' + duration + '.';
 
-				// Add player info to the DOM
-					
-				var champions = {1: 'Annie', 2: 'Olaf', 3: 'Galio', 4: 'Twisted Fate', 5: 'Xin Zhao', 6: 'Urgot', 7: 'LeBlanc', 8: 'Vladimir', 9: 'Fiddlesticks', 10: 'Kayle', 11: 'Master Yi', 12: 'Alistar', 13: 'Ryze', 14: 'Sion', 15: 'Sivir', 16: 'Soraka', 17: 'Teemo', 18: 'Tristana', 19: 'Warwick', 20: 'Nunu', 21: 'Miss Fortune', 22: 'Ashe', 23: 'Tryndamere', 24: 'Jax', 25: 'Morgana', 26: 'Zilean', 27: 'Singed', 28: 'Evelynn', 29: 'Twitch', 30: 'Karthus', 31: "Cho'Gath", 32: 'Amumu', 33: 'Rammus', 34: 'Anivia', 35: 'Shaco', 36: 'Dr. Mundo', 37: 'Sona', 38: 'Kassadin', 39: 'Irelia', 40: 'Janna', 41: 'Gangplank', 42: 'Corki', 43: 'Karma', 44: 'Taric', 45: 'Veigar', 48: 'Trundle', 50: 'Swain', 51: 'Caitlyn', 53: 'Blitzcrank', 54: 'Malphite', 55: 'Katarina', 56: 'Nocturne', 57: 'Maokai', 58: 'Renekton', 59: 'Jarvan IV', 60: 'Elise', 61: 'Orianna', 62: 'Wukong', 63: 'Brand', 64: 'Lee Sin', 67: 'Vayne', 68: 'Rumble', 69: 'Cassiopeia', 72: 'Skarner', 74: 'Heimerdinger', 75: 'Nasus', 76: 'Nidalee', 77: 'Udyr', 78: 'Poppy', 79: 'Gragas', 80: 'Pantheon', 81: 'Ezreal', 82: 'Mordekaiser', 83: 'Yorick', 84: 'Akali', 85: 'Kennen', 86: 'Garen', 89: 'Leona', 90: 'Malzahar', 91: 'Talon', 92: 'Riven', 96: "Kog'Maw", 98: 'Shen', 99: 'Lux', 101: 'Xerath', 102: 'Shyvana', 103: 'Ahri', 104: 'Graves', 105: 'Fizz', 106: 'Volibear', 107: 'Rengar', 110: 'Varus', 111: 'Nautilus', 112: 'Viktor', 113: 'Sejuani', 114: 'Fiora', 115: 'Ziggs', 117: 'Lulu', 119: 'Draven', 120: 'Hecarim', 121: "Kha'Zix", 122: 'Darius', 126: 'Jayce', 127: 'Lissandra', 131: 'Diana', 133: 'Quinn', 134: 'Syndra', 143: 'Zyra', 150: 'Gnar', 154: 'Zac', 157: 'Yasuo', 161: "Vel'Koz", 201: 'Braum', 222: 'Jinx', 236: 'Lucian', 238: 'Zed', 254: 'Vi', 266: 'Aatrox', 267: 'Nami', 268: 'Azir', 412: 'Thresh', 421: "Rek'Sai", 429: 'Kalista'};
+				// Iterate over teamOne participants, adding info to DOM
+				for (var i = 0; i < game.teamOne.length; i++) {
+					var player = game.teamOne[i];
+					var winRate = player.winRate;
 
-				// SUMMONER STATS: /api/lol/{region}/v1.3/stats/by-summoner/{summonerId}/ranked
-
-				// Calculate player info
-				$.get('api_key', function(apiKey){
-
-					apiKey = JSON.parse(apiKey);
-
-					for (var i=0; i < game.participants.length; i++) {
-						var participant = game.participants[i];
-						var region = 'na';
-
-						// Retrieve summoner stats
-						var summonerId = participant.summonerId;
-						var stats_url = "https://" + region + ".api.pvp.net/api/lol/" + region + "/v1.3/stats/by-summoner/" + summonerId + "/ranked";
-
-						$.get(stats_url, apiKey, function(stats) {
-
-							var champHistory = null;
-							for (var i=0; i < stats.champions.length; i++) {
-								var thisChamp = stats.champions[i];
-								if (participant.championId === thisChamp.id) {
-									var winRate = thisChamp.stats.totalSessionsWon/thisChamp.stats.totalSessionsPlayed;
-								};
-							};
-
-							// Determine the correct champions
-							participantInfo = '<tr>\
-													<td>' + participant.summonerName + '</td>\
-													<td>' + winRate + '</td>\
-													<td>' + champions[participant.championId] + '<div>' + '</div>\
-													</td>\
-												</tr>';
-
-							// Split into the correct teams
-							if (participant.teamId === teamOneId) {
-								$('#teamOne').append(participantInfo);
-							} else {
-								$('#teamTwo').append(participantInfo);
-							};
-
-							// Determine searched player's champion
-							if (participant.summonerName.toLowerCase() == summoner.toLowerCase()) {
-								var champ = champions[participant.championId];
-							};
-						});
-
+					// Reformat winRate
+					if (player.winRate == null) {
+						var winRate = 'unknown';
+					} else {
+						var winRate = player.winRate + '%';
+						console.log(player.winRate);
 					};
 
-					var gameStatus = summoner + ' has been in a ' + gameType + ' game as ' + champ + ' for ' + gameDuration + '.';
+					// Assemble participant info
+					var participantInfo = '<tr>\
+												<td>' + player.summonerName + '</td>\
+												<td>' + player.champName + ' (Success: ' + winRate +') </td>\
+											</tr>';
+					$('#teamOne').append(participantInfo);
+				};
 
-					$('table').removeClass('invisible');
-				});
+				// Iterate over teamTwo participants, adding info to DOM
+				for (var i = 0; i < game.teamTwo.length; i++) {
+					var player = game.teamTwo[i];
+					var winRate = player.winRate;
 
-			} else {
-				var gameStatus = summoner + ' is not currently in game.'
+					// Reformat winRate
+					if (player.winRate == null) {
+						var winRate = 'unknown';
+					} else {
+						var winRate = player.winRate + '%';
+					};
+
+					// Assemble participant info
+					var participantInfo = '<tr>\
+												<td>' + player.summonerName + '</td>\
+												<td>' + player.champName + ' (Success: ' + player.winRate +'%) </td>\
+											</tr>';
+					$('#teamTwo').append(participantInfo);
+				};
+				$('table').removeClass('invisible');
+
+			} else { // If the summoner exists, but is not in game
+				var gameStatus = summonerName + ' is not currently in game.'
 			};
-		} else {
-			var gameStatus = 'No summoner by the name ' + summoner + ' could be found.'
+
+		} else { // If the summoner doesn't exist
+			var gameStatus = 'No summoner by the name ' + summonerName + ' could be found.';
 		};
+
 		$('img').addClass('invisible');
 		$('#game-status').text(gameStatus);
-	})
+		console.log('Added gamestatus');
+
+	});
 }
 
 

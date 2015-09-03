@@ -1,11 +1,15 @@
 from flask import Flask, render_template, request
-from riotpy import Riotpy, RIOT_KEY, champs, ranked
+from os import environ
+from riotpy import *
 from twilio import twiml
 from datetime import datetime, timedelta
-import json, os
+import json
+
+PORT = int(environ.get('PORT', 5000))
+DEBUG = 'DEBUG' in environ # This will evaluate to True or False
 
 app = Flask(__name__)
-riot = Riotpy(RIOT_KEY)
+
 
 #####################################################
 # Routes
@@ -19,23 +23,17 @@ def index():
 
 @app.route("/find_game")
 def find_game():
-	"""Returns the summoner's current game, or None"""
+	"""Returns the summoner's current game info"""
 
+	# FIXME: What do I do with summoners who aren't in game?
 	summoner_name = request.args.get('summoner')
-	summoner_id = riot.get_summoner_id(summoner_name)
-	game = riot.get_current_game(summoner_id)
+	game_info = riot.get_current_game_info(summoner_name)
 
-	response = {'summonerId': summoner_id,
-				'game': game}
+	if not game_info:
+		game_info = {'summonerId': None,
+					 'game': None}
 
-	return json.dumps(response)
-
-
-@app.route("/get_champs")
-def return_champs():
-	"""Returns a JSON object of the LoL champs, mapped by id"""
-
-	return json.dumps(champs)
+	return json.dumps(game_info)
 
 
 @app.route("/api_key")
@@ -65,7 +63,7 @@ def respond():
 		for player in game['participants']:
 			if player['summonerId'] == summoner_id:
 				champ_id = player['championId']
-				champ = champs[champ_id]
+				champ = riot.champs[champ_id]
 				break
 
 		# Determine game type
@@ -90,4 +88,4 @@ def respond():
 # Main
 
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run(debug=DEBUG, host="0.0.0.0", port=PORT)
