@@ -146,26 +146,100 @@ class Riotpy(object):
 		except:
 			return
 
-
+# FIXME: Setup tests for ALLLL of this!
 class TextMessage(object):
 
-	def __init__(self, sms):
+	# FIXME: Does it actually make sense to pass in a riotpy_instance?
+	def __init__(self, sms, riotpy_instance):
 		self.sms = sms
+		self.riot = riotpy_instance
+
+		self.parse_command()
+
+
+	def generate_response(self):
+		"""Determines the correct response based on SMS content"""
+
+		if self.command == 'invalid':
+			response = "Invalid command."
+
+		if self.command == 'find':
+			response = self.find_response()
+			
+		elif self.command == 'nickname':
+			response = self.nickname_response()
+
+		return response
+
+
+	def find_response(self):
+		"""Finds a game for the requested summoner, and returns a success string"""
+
+		if self.summoner:
+			game_stats = self.riot.get_current_game_info(self.summoner)
+			game = game_stats['game']
+
+			if game:
+				# Determine game duration
+				start_epoch = float(game['gameStartTime'])/1000
+				start = datetime.fromtimestamp(start_epoch)
+				duration = datetime.now() - start
+				total_minutes = int(duration.total_seconds()/60)
+
+				# Determine champion
+				champ_id = None
+				for player in game['teamOne']:
+					if player['summonerId'] == game_stats['summonerId']:
+						champ_id = player['championId']
+						champ_name = self.riot.champs[champ_id]
+						break
+
+				if not champ_id:
+					for player in game['teamTwo']:
+						if player['summonerId'] == game_stats['summonerId']:
+							champ_id = player['championId']
+							champ_name = self.riot.champs[champ_id]
+							break
+
+				# Set response
+				response = "{0} has been in a {1} game as {2} for {3} minutes.".format(self.summoner, game['gameType'], champ_name, total_minutes)
+			
+			elif not game:
+				response = "{0} is not currently in game.".format(self.summoner)
+		
+		elif not self.summoner:
+			response = "Oops! We couldn't tell who you wanted us to find."
+
+		return response
+
+
+	def nickname_response(self):
+		"""Assigns a nickname to a given summoner, and returns a success string"""
+
+		pass
+
 
 	def parse_command(self):
 		"""Determines what command was used"""
 
-		pass
+		self.content = self.sms.values['Body'].strip().lower().split()
+		command = content[0].lower()
 
-	def find_game(self):
-		"""Finds a game for the requested summoner"""
+		if command == 'find':
+			self.command = command
+			if len(content) == 2:
+				self.summoner =  content[1]
 
-		pass
+		elif command == 'nickname':
+			self.command = command
+			if len(content) == 4:
+				self.nickname = [1]
+				self.summoner = content[3]
 
-	def nickname_summoner(self):
-		"""Assigns a nickname to a given summoner"""
+		else:
+			self.command = 'invalid'
 
-		pass
+
 
 riot = Riotpy(RIOT_KEY)
 

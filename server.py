@@ -38,7 +38,7 @@ def find_game():
 
 @app.route("/api_key")
 def return_api_key():
-	"""Returns a JSON object containing the API key"""
+	"""Returns a JSON object containing the Riot API key"""
 
 	return json.dumps({'api_key': RIOT_KEY})
 
@@ -48,6 +48,7 @@ def respond():
 
 	caller = request.values['From']
 	summoner_name = request.values['Body'].strip()
+	print request.values
 
 	summoner_id = riot.get_summoner_id(summoner_name)
 	game = riot.get_current_game(summoner_id)

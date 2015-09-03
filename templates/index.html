@@ -6,7 +6,7 @@
 
 	body {
 		text-align: center;
-		color: white;
+		color: black;
 		background-color: black;
 		background-image: url('static/img/sejuani.jpg');
 		background-repeat: no-repeat;
@@ -14,25 +14,56 @@
 		overflow: hidden;
 	}
 
-	h1/*, #game-status*/ {
-		text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	h1 {
+		font-size: 60px;
+		/*text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;*/
+		text-shadow: 1px 1px 5px rgba(150, 150, 150, 1);
 		color: white;
 	}
 
 	table, th, td {
 		text-align: center;
 		margin: 0 auto;
-		color: black;
 	}
 
 	table {
 		width: 60%;
 		background-color: rgba(255,255,255,0.7);
+		border: 2px solid white;
 	}
 
-	#footer {
+	th {
+		background-color: #f5f5f5;
+	}
+
+	p#footer {
+		color: white;
 		position: absolute;
 		bottom: 0;
+	}
+
+	p#game-status {
+		width: 30em;
+		background-color: rgba(255,255,255,0.7);
+		border: 2px solid white;
+		border-radius: 10px;
+		padding: 1em;
+		margin: 1em auto;
+	}
+
+	.input-field {
+		background-color: rgba(255, 255, 255, 0.7);
+		border: 2px solid white;
+		border-radius: 8px;
+		width: 15em;
+		height: 2.5em;
+		text-align: center;
+		padding: 0 1em;
+	}
+
+	#search-btn {
+		height: 2.5em;
+		padding: 0;
 	}
 
 	</style>
@@ -43,18 +74,13 @@
 	<div class="container-fluid">
 		<div class="col-xs-12">
 			<h1>RiotPeek</h1>
-			<form>
-				<label class="form-group">
-					<input id="summoner-name" class="form-control" type="text" value="Vankara" placeholder="summoner">
-				</label>
-				<label class="form-group">
-					<input id="summoner-submit" class="btn btn-default" type="submit">
-				</label>
-			</form>
-			<p id="game-status" style="height: 25px"></p>
-			<img src="/static/img/loading.gif" class="invisible" style="width: 60px">
+			<div>
+				<input id="summoner-name" class="input-field" type="text" value="iceman2163" placeholder="Summoner Name">
+				<img id="search-btn" src="/static/img/search.png" class="btn">
+			</div>
+			<p id="game-status" class="hidden"></p>
 		</div>
-		<div class="row" style="height: 250px">
+		<div class="row">
 			<div class="col-xs-12 col-sm-6">
 				<table class="invisible table table-hover">
 					<thead>
@@ -83,7 +109,7 @@
 <script src="static/moment-2.10.3/moment.js"></script>
 <script>
 
-$('#summoner-submit').click(findGame);
+$('#search-btn').click(findGame);
 
 function findGame(evt) {
 	evt.preventDefault();
@@ -95,9 +121,9 @@ function findGame(evt) {
 	};
 	
 	// Update the DOM for loading
-	$('img').removeClass('invisible');
+	$('img#search-btn').attr('src', '/static/img/loading.gif');
 	// $('table').addClass('invisible');
-	$('#game-status').text('');
+	$('#game-status').addClass('hidden');
 	$('#teamOne').text('');
 	$('#teamTwo').text('');
 
@@ -168,8 +194,9 @@ function findGame(evt) {
 			var gameStatus = 'No summoner by the name ' + summonerName + ' could be found.';
 		};
 
-		$('img').addClass('invisible');
+		$('img#search-btn').attr('src', '/static/img/search.png');
 		$('#game-status').text(gameStatus);
+		$('#game-status').removeClass('hidden');
 		console.log('Added gamestatus');
 
 	});
