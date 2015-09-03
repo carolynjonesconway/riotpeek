@@ -70,7 +70,6 @@ class Riotpy(object):
 		url = "https://{0}.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/{1}/{2}?api_key={3}".format(self.region, self.platform, summoner_id, self.api_key)
 		response = requests.get(url)
 		
-
 		game_stats = {'summonerId': summoner_id,
 				  'game': {'teamOne':[],
 						   'teamTwo':[],
@@ -79,50 +78,44 @@ class Riotpy(object):
 						   }
 				  }
 
-		try: # If no game was found, just return immediately
-			game = response.json()
-		except:
+		# Check if a game was found
+		if int(response['status_code']) != 200:
 			return game_stats
 
+		game = response.json()
 
-		if game:
-			# Check if the game is ranked
-			try:
-				if int(game['gameQueueConfigId']) in self.ranked_ids:
-					game_type = 'ranked'
-				else:
-					game_type = 'normal'
+		# Check if the game is ranked
+		if int(game['gameQueueConfigId']) in self.ranked_ids:
+			game_type = 'ranked'
+		else:
+			game_type = 'normal'
 
 
-				# Set the game type & start time
-				game_stats['startTime'] = float(game['gameStartTime'])/1000
-				game_stats['gameType'] = game_type	   
+		# Set the game type & start time
+		game_stats['startTime'] = float(game['gameStartTime'])/1000
+		game_stats['gameType'] = game_type	   
 
-				team_one_id = game['participants'][0]['teamId']
+		team_one_id = game['participants'][0]['teamId']
 
-				# Add participant details to each team
-				for participant in game['participants']:
-					riot.summoners[participant['summonerName']] = participant['summonerId'] # Store their info to reduce API calls later!
+		# Add participant details to each team
+		for participant in game['participants']:
+			riot.summoners[participant['summonerName']] = participant['summonerId'] # Store their info to reduce API calls later!
 
-					win_rate = riot.get_win_rate(participant['summonerId'], participant['championId'])
-					if win_rate:
-						win_rate = int(win_rate * 100)
+			win_rate = riot.get_win_rate(participant['summonerId'], participant['championId'])
+			if win_rate:
+				win_rate = int(win_rate * 100)
 
-					champ_id = str(participant['championId'])
+			champ_id = str(participant['championId'])
 
-					participant_info = {'summonerName': participant['summonerName'],
-										'champName': self.champs[champ_id]['name'],
-										'winRate': win_rate
-										}
+			participant_info = {'summonerName': participant['summonerName'],
+								'champName': self.champs[champ_id]['name'],
+								'winRate': win_rate
+								}
 
-					if participant['teamId'] == team_one_id:
-						game_stats['game']['teamOne'].append(participant_info)
-					else:
-						game_stats['game']['teamTwo'].append(participant_info)
-
-			except KeyError:
-				print game.keys()
-				raise KeyError
+			if participant['teamId'] == team_one_id:
+				game_stats['game']['teamOne'].append(participant_info)
+			else:
+				game_stats['game']['teamTwo'].append(participant_info)
 
 		return game_stats
 

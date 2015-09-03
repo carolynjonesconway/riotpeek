@@ -2,7 +2,7 @@ RiotPeek
 ===========
 Learn more about the developer: www.linkedin.com/in/carolynjoneslee/
 
-Are you friends with a League of Legends player? Have you ever tried to contact them and realized it was hopeless--they were in game? RiotPeek was designed to make it easy to find out if your friend (or your favorite pro player) is currently in a LoL game.
+Are you friends with a League of Legends player? Have you ever tried to contact them and realized it was hopeless--they were in game? RiotPeek was designed to make it easy to find out if your friend (or your favorite pro player) is currently in a LoL game. This project is a work in progress, and is evolving every day!
 
 ## Usage
 ### Text Message Commands
