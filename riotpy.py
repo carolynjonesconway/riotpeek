@@ -48,7 +48,10 @@ class Riotpy(object):
 			43265218
 
 		"""
-		name = name.lower()
+		try:
+			name = name.lower()
+		except AttributeError:
+			print "\n\nName:", name, "\n\n"
 
 		if name in self.summoners:
 			return self.summoners[name]
@@ -74,7 +77,8 @@ class Riotpy(object):
 				  'game': {'teamOne':[],
 						   'teamTwo':[],
 						   'startTime': None,
-						   'gameType': None
+						   'gameType': None,
+						   'champName': None
 						   }
 				  }
 
@@ -101,16 +105,17 @@ class Riotpy(object):
 
 		# Add participant details to each team
 		for participant in game['participants']:
-			riot.summoners[participant['summonerName']] = participant['summonerId'] # Store their info to reduce API calls later!
+			self.summoners[participant['summonerName']] = participant['summonerId'] # Store their info to reduce API calls later!
 
 			win_rate = riot.get_win_rate(participant['summonerId'], participant['championId'])
 			if win_rate:
 				win_rate = int(win_rate * 100)
 
 			champ_id = str(participant['championId'])
+			champ_name = self.champs[champ_id]['name']
 
 			participant_info = {'summonerName': participant['summonerName'],
-								'champName': self.champs[champ_id]['name'],
+								'champName': champ_name,
 								'winRate': win_rate
 								}
 
@@ -118,6 +123,10 @@ class Riotpy(object):
 				game_stats['game']['teamOne'].append(participant_info)
 			else:
 				game_stats['game']['teamTwo'].append(participant_info)
+
+			# Store the champion that the requested user is playing
+			if participant['summonrId'] == summoner_id:
+				game_stats['game']['champName'] = champ_name
 
 		return game_stats
 
@@ -183,11 +192,10 @@ class TextMessage(object):
 			print "Game Stats: ", game_stats
 			game = game_stats['game']
 
-			if game:
+			if game['gameType'] is not None:
 				# Determine game duration
-				start_epoch = float(game['gameStartTime'])/1000
-				start = datetime.fromtimestamp(start_epoch)
-				duration = datetime.now() - start
+				game_start = datetime.fromtimestamp(game['startTime'])
+				duration = datetime.now() - game_start
 				total_minutes = int(duration.total_seconds()/60)
 
 				# Determine champion
@@ -208,7 +216,7 @@ class TextMessage(object):
 				# Set response
 				response = "{0} has been in a {1} game as {2} for {3} minutes.".format(self.summoner, game['gameType'], champ_name, total_minutes)
 			
-			elif not game:
+			elif game['gameType'] is None:
 				response = "{0} is not currently in game.".format(self.summoner)
 		
 		elif not self.summoner:

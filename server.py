@@ -44,40 +44,13 @@ def respond():
 
 	caller = request.values['From']
 	summoner_name = request.values['Body'].strip()
-	print request.values
-
-	summoner_id = riot.get_summoner_id(summoner_name)
-	game = riot.get_current_game(summoner_id)
-
-	if game:
-		# Determine game duration
-		game_start_epoch = float(game['gameStartTime'])/1000
-		game_start = datetime.fromtimestamp(game_start_epoch)
-		duration = datetime.now() - game_start
-		minutes = int(duration.total_seconds()/60)
-
-		# Determine champion
-		for player in game['participants']:
-			if player['summonerId'] == summoner_id:
-				champ_id = player['championId']
-				champ = riot.champs[champ_id]
-				break
-
-		# Determine game type
-		if int(game['gameQueueConfigId']) in ranked:
-			game_type = 'ranked'
-		else:
-			game_type = 'normal'
-			print int(game['gameQueueConfigId'])
-
-		# Create message
-		msg = "{0} has been in a {1} game as {2} for {3} minutes.".format(summoner_name, game_type, champ, minutes)
-	else:
-		msg = "{0} is not currently in game.".format(summoner_name)
-
+	sms = request.values
+	msg_obj = TextMessage(sms, riot)
+	response = msg_obj.generate_response()
+	
 	# Send message
 	resp = twiml.Response()
-	resp.message(msg)
+	resp.message(response)
 
 	return str(resp)
 
