@@ -22,3 +22,4 @@ Are you friends with a League of Legends player? Have you ever tried to contact 
 < Superpaladin98 has been in game as Miss Fortune for 11 minutes.
 ```
 ### Web Interface
+![GameResults](https://raw.githubusercontent.com/carolynjoneslee/riotpeek/master/static/img/screenshot.png)
