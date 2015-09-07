@@ -26,7 +26,7 @@ class Riotpy(object):
 	def get_summoner_ids(self, names):
 		"""Given a list of names, returns a list of summoner ids, in the same order
 
-			>>> rp.get_summoner_ids(['icegirl2163', 'iceman2163'])
+			>>> riot.get_summoner_ids(['icegirl2163', 'iceman2163'])
 			[43265218, 22685864]
 
 		"""
@@ -44,7 +44,7 @@ class Riotpy(object):
 
 		This decreases the number of requests by storing info.
 
-			>>> rp.get_summoner_id('icegirl2163')
+			>>> riot.get_summoner_id('icegirl2163')
 			43265218
 
 		"""
@@ -156,7 +156,7 @@ class Riotpy(object):
 
 			# If they have never played this champ in ranked, return None
 		except:
-			return
+			return None
 
 # FIXME: Setup tests for ALLLL of this!
 class TextMessage(object):
@@ -239,8 +239,14 @@ class TextMessage(object):
 
 		if command == 'find':
 			self.command = command
+
 			if len(self.content) == 2:
-				self.summoner = self.content[1]
+				summoner_name = self.content[1]
+				summoner_id = riot.get_summoner_id(summoner_name)
+				if summoner_id:
+					self.summoner = summoner_name
+				else:
+					self.summoner = None 
 
 		elif command == 'nickname':
 			self.command = command
