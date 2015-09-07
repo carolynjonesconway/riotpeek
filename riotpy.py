@@ -1,8 +1,11 @@
-# from lol_gradiusbot.libs.xmppbot import Xmppbot
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
 from os import environ
 import requests
 
 RIOT_KEY = environ['RIOT_API_KEY']
+db = SQLAlchemy()
 
 
 class Riotpy(object):
@@ -13,7 +16,6 @@ class Riotpy(object):
 		self.platform = platform
 		self.summoners = {'prohibit': 19936601, 'bruds': 19723956, 'mateeen': 21335177, 'icegirl2163': 43265218, 'charlimir': 67992136, 'iceman2163': 22685864, 'lolz2244': 33460853, 'japanman': 55963358, 'gunshymonkey': 39561509}
 		self.champs = self.load_champions() # FIXME: An API call is only necessary when a new champ is released. Can we improve this update method?
-		# self.champs = champs
 		self.ranked_ids = [4, 6, 9, 41, 42]
 
 	def load_champions(self):
@@ -48,6 +50,7 @@ class Riotpy(object):
 			43265218
 
 		"""
+
 		try:
 			name = name.lower()
 		except AttributeError:

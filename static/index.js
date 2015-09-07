@@ -22,7 +22,7 @@ function findGame(evt) {
 		var response = JSON.parse(response);
 		var summonerId = response.summonerId;
 		var game = response.game;
-		console.log(response);
+		
 		if (summonerId) {
 			if (game.gameType) { // If the summoner exists and is in game
 
@@ -82,7 +82,6 @@ function findGame(evt) {
 		$('img#search-btn').attr('src', '/static/img/search.png');
 		$('#game-status').text(gameStatus);
 		$('#game-status').removeClass('hidden');
-		console.log('Added gamestatus');
 
 	});
 }
