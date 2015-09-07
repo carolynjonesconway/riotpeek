@@ -81,6 +81,7 @@ class Riotpy(object):
 		# Check if a game was found
 		if int(response.status_code) != 200:
 			print '\n\nStatusCode: {}\nURL: {}\nSummoner: {} ({})\n\n'.format(response.status_code, url, summoner_name, summoner_id)
+			# If no game was found, stop here, do not pass GO, do not collect $200.
 			return game_stats
 
 		game = response.json()
@@ -93,8 +94,8 @@ class Riotpy(object):
 
 
 		# Set the game type & start time
-		game_stats['startTime'] = float(game['gameStartTime'])/1000
-		game_stats['gameType'] = game_type	   
+		game_stats['game']['startTime'] = float(game['gameStartTime'])/1000 # We get the data in microseconds. Convert to seconds.
+		game_stats['game']['gameType'] = game_type	   
 
 		team_one_id = game['participants'][0]['teamId']
 

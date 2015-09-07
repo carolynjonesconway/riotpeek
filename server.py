@@ -28,11 +28,7 @@ def find_game():
 	# FIXME: What do I do with summoners who aren't in game?
 	summoner_name = request.args.get('summoner')
 	game_info = riot.get_current_game_info(summoner_name)
-
-	if not game_info['game']['gameType']:
-		game_info = {'summonerId': game_info['summonerId'],
-					 'game': None}
-
+	print "\n\nGame info: {}\n\n".format(game_info)
 	return json.dumps(game_info)
 
 
