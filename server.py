@@ -1,8 +1,7 @@
 from flask import Flask, render_template, request
-from os import environ
 from model import *
 from twilio import twiml
-from datetime import datetime, timedelta
+from os import environ
 import json
 
 PORT = int(environ.get('PORT', 5000))
@@ -27,7 +26,7 @@ def find_game():
 
 	# FIXME: What do I do with summoners who aren't in game?
 	summoner_name = request.args.get('summoner')
-	game_info = riot.get_current_game_info(summoner_name)
+	game_info = Summoner.get_current_game_info(summoner_name)
 	print "\n\nGame info: {}\n\n".format(game_info)
 	return json.dumps(game_info)
 
@@ -45,7 +44,7 @@ def respond():
 	caller = request.values['From']
 	summoner_name = request.values['Body'].strip()
 	sms = request.values
-	msg_obj = TextMessage(sms, riot)
+	msg_obj = TextMessage(sms)
 	response = msg_obj.generate_response()
 	
 	# Send message
