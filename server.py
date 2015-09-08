@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from os import environ
-from riotpy import *
+from model import *
 from twilio import twiml
 from datetime import datetime, timedelta
 import json
