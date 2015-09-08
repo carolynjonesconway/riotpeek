@@ -24,7 +24,6 @@ def index():
 def find_game():
 	"""Returns the summoner's current game info"""
 
-	# FIXME: What do I do with summoners who aren't in game?
 	summoner_name = request.args.get('summoner')
 	game_info = Summoner.get_current_game_info(summoner_name)
 	print "\n\nGame info: {}\n\n".format(game_info)
@@ -37,8 +36,9 @@ def return_api_key():
 
 	return json.dumps({'api_key': RIOT_KEY})
 
+
 @app.route("/", methods=['POST'])
-def respond():
+def respond_to_sms():
 	"""Sends a text response"""
 
 	caller = request.values['From']
