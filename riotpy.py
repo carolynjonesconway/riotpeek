@@ -35,7 +35,9 @@ class Summoner(db.Model):
 
 		# Look in the DB for the summoner
 		try:
+			print "Checking DB..."
 			summoner = cls.query.filter_by(summoner_name=name).one()
+			print summoner
 			return summoner.summoner_id
 
 		# If they aren't in the DB, query the Riot server
@@ -43,14 +45,53 @@ class Summoner(db.Model):
 			url = 'https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region, name, RIOT_KEY)
 			# If they exist, return their id.
 			try:
+				print "Checking Riot servers..."
 				response = requests.get(url).json()
 				summoner = cls(summoner_name=name, summoner_id=response[name]['id'], region=region) # Add this summoner's info to the DB
 				db.session.add(summoner)
 				db.session.commit()
+				print summoner
 				return response[name]['id']
 			# If they don't exist, return none.
 			except:
 				return None
+
+
+	@classmethod # FIXME: In the future maybe this is instead an instance method?
+	def get_current_game_info(cls, summoner_name, region="na", platform="NA1"):
+
+		summoner_id = cls.get_summoner_id(summoner_name)
+
+		url = "https://{0}.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/{1}/{2}/?api_key={3}".format(region, platform, summoner_id, RIOT_KEY)
+		response = requests.get(url)
+		
+		game_stats = {'summonerId': summoner_id,
+				  'game': {'teamOne':[],
+						   'teamTwo':[],
+						   'startTime': None,
+						   'gameType': None,
+						   'champName': None
+						   }
+				  }
+
+		# Check if a game was found
+		if int(response.status_code) != 200:
+			print '\n\nStatusCode: {}\nURL: {}\nSummoner: {} ({})\n\n'.format(response.status_code, url, summoner_name, summoner_id)
+			# If no game was found, stop here, do not pass GO, do not collect $200.
+			return game_stats
+
+		game = response.json()
+
+		# Check if the game is ranked
+		if int(game['gameQueueConfigId']) in self.ranked_ids:
+			game_type = 'ranked'
+		else:
+			game_type = 'normal'
+
+
+
+
+
 
 
 class Nickname(db.Model):
@@ -123,9 +164,10 @@ class Riotpy(object):
 		champs = requests.get(url).json()['data']
 		return champs
 
+
 	def get_current_game_info(self, summoner_name):
 
-		summoner_id = riot.get_summoner_id(summoner_name)
+		summoner_id = cls.get_summoner_id(summoner_name)
 
 		url = "https://{0}.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/{1}/{2}/?api_key={3}".format(self.region, self.platform, summoner_id, self.api_key)
 		response = requests.get(url)
