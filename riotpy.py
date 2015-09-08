@@ -123,52 +123,6 @@ class Riotpy(object):
 		champs = requests.get(url).json()['data']
 		return champs
 
-	def get_summoner_ids(self, names):
-		"""Given a list of names, returns a list of summoner ids, in the same order
-
-			>>> riot.get_summoner_ids(['icegirl2163', 'iceman2163'])
-			[43265218, 22685864]
-
-		"""
-
-		names_str = ','.join(names)
-		url = 'https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(self.region, names_str, self.api_key)
-		response = requests.get(url).json()
-
-		ids = [response[name]['id'] for name in names]
-		return ids
-
-	def get_summoner_id(self, name):
-		"""Given a single summoner name, returns that summoner's id
-
-
-		This decreases the number of requests by storing info.
-
-			>>> riot.get_summoner_id('icegirl2163')
-			43265218
-
-		"""
-
-		# try:
-		# 	name = name.lower()
-		# except AttributeError:
-		# 	print "\n\nName:", name, "\n\n"
-
-		# # if name in self.summoners:
-		# # 	return self.summoners[name]
-		# try:
-		# 	Summoner.query.filter_by(summoner_name=name)
-
-		# else:
-		# 	url = 'https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(self.region, name, self.api_key)
-		# 	try:
-		# 		response = requests.get(url).json()
-		# 		self.summoners[name] = response[name]['id']
-		# 		return response[name]['id']
-		# 	except:
-		# 		return None
-
-
 	def get_current_game_info(self, summoner_name):
 
 		summoner_id = riot.get_summoner_id(summoner_name)
