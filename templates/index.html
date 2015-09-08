@@ -9,12 +9,26 @@
 	<div class="container-fluid">
 		<div class="col-xs-12">
 			<h1>RiotPeek</h1>
+			<!-- Summoner Name Input Field -->
 			<div>
 				<input id="summoner-name" class="input-field" type="text" value="iceman2163" placeholder="Summoner Name">
+				<select id="region" class="dropdown">
+					<option value="na">NA</option>
+					<option value="eune">EUNE</option>
+					<option value="euw">EUW</option>
+					<option value="br">BR</option>
+					<option value="kr">KR</option>
+					<option value="lan">LAN</option>
+					<option value="las">LAS</option>
+					<option value="oce">OCE</option>
+					<option value="pbe">EUW</option>
+					<option value="tr">TR</option>
+				</select>
 				<img id="search-btn" src="/static/img/search.png" class="btn">
 			</div>
 			<p id="game-status" class="hidden"></p>
 		</div>
+		<!-- Player Details -->
 		<div class="row">
 			<div class="col-xs-12 col-sm-6">
 				<table class="hidden table table-hover">
