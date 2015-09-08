@@ -6,7 +6,8 @@ function findGame(evt) {
 	// Get summoner name from the DOM
 	var summonerName = $('#summoner-name').val();
 	var summonerInfo = {
-		summoner: summonerName
+		summoner: summonerName,
+		region: $('#region').val()
 	};
 	
 	// Update the DOM for loading
@@ -18,7 +19,7 @@ function findGame(evt) {
 
 
 	// Get the game from the server
-	$.get('/find_game', {summoner: summonerName}, function(response) {
+	$.get('/find_game', summonerInfo, function(response) {
 		var response = JSON.parse(response);
 		var summonerId = response.summonerId;
 		var game = response.game;

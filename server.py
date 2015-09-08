@@ -25,7 +25,9 @@ def find_game():
 	"""Returns the summoner's current game info"""
 
 	summoner_name = request.args.get('summoner')
-	game_info = Summoner.get_current_game_info(summoner_name)
+	region = request.args.get(;'region')
+
+	game_info = Summoner.get_current_game_info(summoner_name, region=region)
 	print "\n\nGame info: {}\n\n".format(game_info)
 	return json.dumps(game_info)
 
