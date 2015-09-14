@@ -17,8 +17,6 @@ app.secret_key = "most_secret_key_EVER!!!!!!!"
 def index():
 	"""Renders the homepage"""
 
-	# print Summoner.get_summoner_id('c9sneaky')
-
 	return render_template('index.html')
 
 
@@ -29,9 +27,7 @@ def find_game():
 	summoner_name = request.args.get('summoner')
 	region = request.args.get('region')
 
-	print "\n\nSummoner: {}\nRegion: {}\n\n".format(summoner_name, region)
 	game_info = Summoner.get_current_game_info(summoner_name, region=region)
-	print "\n\nGame info: {}\n\n".format(game_info)
 	
 	return json.dumps(game_info)
 
