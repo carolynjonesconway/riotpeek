@@ -77,7 +77,6 @@ class Summoner(db.Model):
 			url = 'https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region, name, RIOT_KEY)
 			# If they exist, return their id.
 			try:
-				print "Checking Riot servers..."
 				response = requests.get(url).json()
 				summoner = cls(summoner_name=name, summoner_id=response[name]['id'], region=region) # Add this summoner's info to the DB
 				db.session.add(summoner)
@@ -91,7 +90,6 @@ class Summoner(db.Model):
 	@classmethod # FIXME: In the future maybe this is instead an instance method?
 	def get_current_game_info(cls, summoner_name, region="na"):
 
-		print "\n\nCls: {}\n\n".format(cls)
 		summoner_id = cls.get_summoner_id(summoner_name)
 		platform = platforms[region]
 
@@ -109,7 +107,6 @@ class Summoner(db.Model):
 
 		# Check if a game was found
 		if int(response.status_code) != 200:
-			print '\n\nStatusCode: {}\nURL: {}\nSummoner: {} ({})\n\n'.format(response.status_code, url, summoner_name, summoner_id)
 			# If no game was found, stop here, do not pass GO, do not collect $200.
 			return game_stats
 
@@ -287,7 +284,6 @@ class TextMessage(object):
 				self.nickname = self.content[2]
 
 		else:
-			print self.content[0].lower()
 			self.command = 'invalid'
 
 ################################################################
