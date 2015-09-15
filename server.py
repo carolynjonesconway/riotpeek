@@ -32,13 +32,6 @@ def find_game():
 	return json.dumps(game_info)
 
 
-@app.route("/api_key")
-def return_api_key():
-	"""Returns a JSON object containing the Riot API key"""
-
-	return json.dumps({'api_key': RIOT_KEY})
-
-
 @app.route("/", methods=['POST'])
 def respond_to_sms():
 	"""Sends a text response"""

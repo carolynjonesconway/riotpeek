@@ -1,15 +1,9 @@
 $('#search-btn').click(findGame);
 
+
 function findGame(evt) {
 	evt.preventDefault();
 
-	// Get summoner name from the DOM
-	var summonerName = $('#summoner-name').val();
-	var summonerInfo = {
-		summoner: summonerName,
-		region: $('#region').val()
-	};
-	
 	// Update the DOM for loading
 	$('img#search-btn').attr('src', '/static/img/loading.gif');
 	$('table').addClass('hidden');
@@ -17,6 +11,12 @@ function findGame(evt) {
 	$('#teamOne').text('');
 	$('#teamTwo').text('');
 
+	// Get summoner name from the DOM
+	var summonerName = $('#summoner-name').val();
+	var summonerInfo = {
+		summoner: summonerName,
+		region: $('#region').val()
+	};
 
 	// Get the game from the server
 	$.get('/find_game', summonerInfo, function(response) {

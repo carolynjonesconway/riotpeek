@@ -2,6 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm.exc import NoResultFound
 
+from game import sample_game as mygame
+
 from os import environ
 import requests
 
@@ -10,9 +12,6 @@ db = SQLAlchemy()
 
 RANKED_IDS = [4, 6, 9, 41, 42]
 platforms = {'na':'NA1', 'br':'BR1', 'lan':'LA1', 'las':'LA2', 'oce':'OC1', 'eun':'EUN1', 'tr': 'TR1', 'ru':'RU', 'euw':'EUW1', 'kr':'KR'}
-
-
-# FIXME: How should I connect the Riotpy class with my DB? Some refactoring may be necessary.
 
 class Champion(db.Model):
 
@@ -67,6 +66,7 @@ class Summoner(db.Model):
 
 		"""
 
+		name = name.lower()
 		# Look in the DB for the summoner
 		try:
 			summoner = cls.query.filter_by(summoner_name=name).one()
@@ -93,8 +93,8 @@ class Summoner(db.Model):
 		summoner_id = cls.get_summoner_id(summoner_name)
 		platform = platforms[region]
 
-		url = "https://{0}.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/{1}/{2}/?api_key={3}".format(region, platform, summoner_id, RIOT_KEY)
-		response = requests.get(url)
+		# url = "https://{0}.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/{1}/{2}/?api_key={3}".format(region, platform, summoner_id, RIOT_KEY)
+		# response = requests.get(url)
 		
 		game_stats = {'summonerId': summoner_id,
 				  'game': {'teamOne':[],
@@ -105,18 +105,24 @@ class Summoner(db.Model):
 						   }
 				  }
 
-		# Check if a game was found
-		if int(response.status_code) != 200:
-			# If no game was found, stop here, do not pass GO, do not collect $200.
-			return game_stats
+		# # Check if a game was found
+		# if int(response.status_code) != 200:
+		# 	# If no game was found, stop here, do not pass GO, do not collect $200.
+		# 	return game_stats
 
-		game = response.json()
+		# game = response.json()
+		game = mygame
 
 		# Check if the game is ranked
 		if int(game['gameQueueConfigId']) in RANKED_IDS:
 			game_type = 'ranked'
 		else:
 			game_type = 'normal'
+
+
+		# Get summoner data
+
+		return game_stats
 
 
 
@@ -130,10 +136,10 @@ class Summoner(db.Model):
 		
 		try:
 			response = requests.get(url).json()
-			champs = response['champions']
+			ranked_champs = response['champions']
 
 			# Find their win rate with this champ
-			for champ in champs:
+			for champ in ranked_champs:
 				if int(champ['id']) == int(champion_id):
 					games_won = float(champ['stats']['totalSessionsWon'])
 					games_played = float(champ['stats']['totalSessionsPlayed'])
@@ -223,10 +229,10 @@ class TextMessage(object):
 							break
 
 				# Set response
-				response = "{0} has been in a {1} game as {2} for {3} minutes.".format(self.summoner, game['gameType'], champ_name, total_minutes)
+				response = "{0} has been in a {1} game as {2} for {3} minutes.".format(self.summoner, game['gameType'], champ_name, total_minutes).capitalize()
 			
 			elif game['gameType'] is None:
-				response = "{0} is not currently in game.".format(self.summoner)
+				response = "{0} is not currently in game.".format(self.summoner).capitalize()
 		
 		elif not self.summoner:
 			response = "Oops! We couldn't tell who you wanted us to find."
