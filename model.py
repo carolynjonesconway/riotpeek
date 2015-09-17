@@ -90,7 +90,7 @@ class Summoner(db.Model):
 				return summoner_id
 			# If they don't exist, return none.
 			except:
-				return response
+				print response
 				return None
 
 
@@ -100,8 +100,8 @@ class Summoner(db.Model):
 		summoner_id = cls.get_summoner_id(summoner_name)
 		platform = platforms[region]
 
-		# url = "https://{0}.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/{1}/{2}/?api_key={3}".format(region, platform, summoner_id, RIOT_KEY)
-		# response = requests.get(url)
+		url = "https://{0}.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/{1}/{2}/?api_key={3}".format(region, platform, summoner_id, RIOT_KEY)
+		response = requests.get(url)
 		
 		game_stats = {'summonerId': summoner_id,
 				  'game': {'teamOne':[],
@@ -112,13 +112,14 @@ class Summoner(db.Model):
 						   }
 				  }
 
-		# # Check if a game was found
-		# if int(response.status_code) != 200:
-		# 	# If no game was found, stop here, do not pass GO, do not collect $200.
-		# 	return game_stats
+		# Check if a game was found
+		if int(response.status_code) != 200:
+			# If no game was found, stop here, do not pass GO, do not collect $200.
+			print response
+			return game_stats
 
-		# game = response.json()
-		game = mygame
+		game = response.json()
+		# game = mygame
 		team1_id = game['participants'][0]['teamId']
 
 		# Collect player details
@@ -127,13 +128,11 @@ class Summoner(db.Model):
 			player_details = {}
 
 			champ_id = int(player['championId'])
-			print "Champ ID:", type(champ_id)
 			champ_name = Champion.query.get(champ_id).champ_name
 
 			summoner_id = Summoner.get_summoner_id(player['summonerName'])
 			summoner_obj = Summoner.query.get(summoner_id)
 			win_rate = summoner_obj.get_win_rate(champ_id)
-			print "\n\n", summoner_id, '\n', player['summonerName'], '\n', summoner_obj, '\n'
 
 			player_details['summonerName'] = player['summonerName']
 			player_details['champName'] = champ_name
