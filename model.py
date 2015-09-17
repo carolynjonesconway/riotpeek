@@ -28,6 +28,7 @@ class Champion(db.Model):
 		"""Retrieves all the champs from the Riot server and adds them to the DB"""
 
 		url = "https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?dataById=true&api_key={}".format(RIOT_KEY)
+		
 		champs = requests.get(url).json()['data']
 
 		for id_ in champs:
@@ -74,16 +75,21 @@ class Summoner(db.Model):
 
 		# If they aren't in the DB, query the Riot server
 		except NoResultFound:
-			url = 'https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region, name, RIOT_KEY)
+			url_safe_name = requests.utils.quote(name, safe='')
+			url = 'https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region, url_safe_name, RIOT_KEY)
+
 			# If they exist, return their id.
+			response = requests.get(url)
 			try:
-				response = requests.get(url).json()
-				summoner = cls(summoner_name=name, summoner_id=response[name]['id'], region=region) # Add this summoner's info to the DB
+				json = response.json()
+				summoner_id = Summoner.get_summoner_id(name)
+				summoner = cls(summoner_name=name, summoner_id=summoner_id, region=region) # Add this summoner's info to the DB
 				db.session.add(summoner)
 				db.session.commit()
-				return response[name]['id']
+				return json[name]['id']
 			# If they don't exist, return none.
 			except:
+				print url
 				return None
 
 
@@ -112,15 +118,41 @@ class Summoner(db.Model):
 
 		# game = response.json()
 		game = mygame
+		team1_id = game['participants'][0]['teamId']
 
-		# Check if the game is ranked
+		# Collect player details
+		for player in game['participants']:
+			
+			player_details = {}
+
+			champ_id = int(player['championId'])
+			champ_name = Champion.query.get(champ_id).champ_name
+
+			print player['summonerName']
+			summoner_id = Summoner.get_summoner_id(player['summonerName'])
+			print summoner_id
+			summoner_obj = Summoner.query.get(summoner_id)
+			print summoner_obj, '\n'
+			win_rate = summoner_obj.get_win_rate(champ_id)
+
+			player_details['summonerName'] = player['summonerName']
+			player_details['champName'] = champ_name
+			player_details['winRate'] = win_rate
+
+			# Sort players into teams
+			if player['teamId'] == team1_id:
+				game_stats['game']['teamOne'].append(player_details)
+			else:
+				game_stats['game']['teamTwo'].append(player_details)
+
+
+		# Check if the game is ranked or not
 		if int(game['gameQueueConfigId']) in RANKED_IDS:
 			game_type = 'ranked'
 		else:
 			game_type = 'normal'
 
-
-		# Get summoner data
+		game_stats['game']['gameType'] = game_type
 
 		return game_stats
 
