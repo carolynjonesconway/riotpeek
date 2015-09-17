@@ -77,19 +77,20 @@ class Summoner(db.Model):
 		except NoResultFound:
 			url_safe_name = requests.utils.quote(name, safe='')
 			url = 'https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region, url_safe_name, RIOT_KEY)
-
 			# If they exist, return their id.
 			response = requests.get(url)
+
 			try:
 				json = response.json()
-				summoner_id = Summoner.get_summoner_id(name)
+				name_key = ''.join(name.split()).lower()
+				summoner_id = json[name_key]['id']
 				summoner = cls(summoner_name=name, summoner_id=summoner_id, region=region) # Add this summoner's info to the DB
 				db.session.add(summoner)
 				db.session.commit()
-				return json[name]['id']
+				return summoner_id
 			# If they don't exist, return none.
 			except:
-				print url
+				return response
 				return None
 
 
@@ -126,14 +127,13 @@ class Summoner(db.Model):
 			player_details = {}
 
 			champ_id = int(player['championId'])
+			print "Champ ID:", type(champ_id)
 			champ_name = Champion.query.get(champ_id).champ_name
 
-			print player['summonerName']
 			summoner_id = Summoner.get_summoner_id(player['summonerName'])
-			print summoner_id
 			summoner_obj = Summoner.query.get(summoner_id)
-			print summoner_obj, '\n'
 			win_rate = summoner_obj.get_win_rate(champ_id)
+			print "\n\n", summoner_id, '\n', player['summonerName'], '\n', summoner_obj, '\n'
 
 			player_details['summonerName'] = player['summonerName']
 			player_details['champName'] = champ_name
